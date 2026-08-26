@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "checkin",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Name",
+      "readOnly": true
+    },
+    "username": {
+      "type": "string",
+      "title": "Username",
+      "readOnly": true
+    },
+    "checked_in_at": {
+      "type": "string",
+      "format": "date-time",
+      "default": "$now",
+      "title": "Checked in at",
+      "readOnly": true
+    }
+  },
+  "required": ["name", "checked_in_at"]
+}

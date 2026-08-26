@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: How do I add my name to the wall?
+    url: https://github.com/OpenDataEnsemble/ode-trail/blob/main/CONTRIBUTING.md
+    about: Step-by-step instructions you can follow from your phone in about two minutes.
+  - name: Open Data Ensemble documentation
+    url: https://opendataensemble.org/docs/
+    about: Guides for Formulus, Synkronus, and building your own custom app.

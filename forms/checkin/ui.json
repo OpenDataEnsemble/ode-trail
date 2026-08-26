@@ -1,0 +1,18 @@
+{
+  "type": "VerticalLayout",
+  "options": {
+    "headerTitle": "Check in"
+  },
+  "elements": [
+    {
+      "type": "Control",
+      "scope": "#/properties/name",
+      "options": { "readOnly": true }
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/checked_in_at",
+      "options": { "readOnly": true }
+    }
+  ]
+}

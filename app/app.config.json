@@ -1,0 +1,60 @@
+{
+  "name": "ODE Trail",
+  "version": "1.0.0",
+  "theme": {
+    "light": {
+      "primary": "#0E4B23",
+      "primaryLight": "#2E6B43",
+      "primaryDark": "#08351A",
+      "onPrimary": "#FFFFFF",
+
+      "secondary": "#F2A81D",
+      "secondaryLight": "#F6BF52",
+      "secondaryDark": "#C6870F",
+      "onSecondary": "#1F1500",
+
+      "background": "#FAF8F3",
+      "surface": "#FFFFFF",
+      "onBackground": "#1C1B18",
+      "onSurface": "#3A362E",
+
+      "error": "#B3261E",
+      "errorLight": "#DC3D30",
+      "errorDark": "#8C1D18",
+      "onError": "#FFFFFF",
+
+      "warning": "#8C5000",
+      "success": "#0E4B23",
+      "info": "#0B5FA4",
+
+      "divider": "#E3DFD4"
+    },
+    "dark": {
+      "primary": "#3E8B5C",
+      "primaryLight": "#5FAE7C",
+      "primaryDark": "#2E6B43",
+      "onPrimary": "#0A1F12",
+
+      "secondary": "#F2A81D",
+      "secondaryLight": "#F6BF52",
+      "secondaryDark": "#C6870F",
+      "onSecondary": "#1F1500",
+
+      "background": "#15140F",
+      "surface": "#201F19",
+      "onBackground": "#F2EFE6",
+      "onSurface": "#D6D1C4",
+
+      "error": "#FF6B60",
+      "errorLight": "#FF897D",
+      "errorDark": "#DC3D30",
+      "onError": "#3B0904",
+
+      "warning": "#FFB77C",
+      "success": "#5FAE7C",
+      "info": "#7FB8E8",
+
+      "divider": "#3A382F"
+    }
+  }
+}

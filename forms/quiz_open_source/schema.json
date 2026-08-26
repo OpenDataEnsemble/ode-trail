@@ -1,0 +1,85 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "quiz_open_source",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Name",
+      "readOnly": true
+    },
+    "username": {
+      "type": "string",
+      "title": "Username",
+      "readOnly": true
+    },
+    "answered_at": {
+      "type": "string",
+      "format": "date-time",
+      "default": "$now",
+      "title": "Answered at",
+      "readOnly": true
+    },
+    "q1": {
+      "type": "string",
+      "title": "What does \"open source\" mean?",
+      "$ref": "#/$defs/q1_options"
+    },
+    "q2": {
+      "type": "string",
+      "title": "How do outside contributors usually help an open source project?",
+      "$ref": "#/$defs/q2_options"
+    },
+    "q3": {
+      "type": "string",
+      "title": "What's the usual way to propose a code change on GitHub?",
+      "$ref": "#/$defs/q3_options"
+    },
+    "q4": {
+      "type": "string",
+      "title": "What license is ODE released under?",
+      "$ref": "#/$defs/q4_options"
+    },
+    "score": {
+      "type": "integer",
+      "title": "Score",
+      "readOnly": true
+    },
+    "max_score": {
+      "type": "integer",
+      "title": "Max score",
+      "readOnly": true
+    }
+  },
+  "required": ["q1", "q2", "q3", "q4"],
+  "$defs": {
+    "q1_options": {
+      "oneOf": [
+        { "const": "anyone_can_view", "title": "Anyone can see and use the code" },
+        { "const": "company_only", "title": "Only the company that made it can use it" },
+        { "const": "paid_license", "title": "You must buy a license to see the code" }
+      ]
+    },
+    "q2_options": {
+      "oneOf": [
+        { "const": "contribute_changes", "title": "They can propose changes to the code" },
+        { "const": "cannot_help", "title": "They can't do anything, only maintainers can change it" },
+        { "const": "must_be_hired", "title": "Only paid employees can contribute" }
+      ]
+    },
+    "q3_options": {
+      "oneOf": [
+        { "const": "pull_request", "title": "Open a pull request" },
+        { "const": "email_maintainer", "title": "Email the maintainer a zip file" },
+        { "const": "phone_call", "title": "Call the maintainer" }
+      ]
+    },
+    "q4_options": {
+      "oneOf": [
+        { "const": "mit", "title": "MIT" },
+        { "const": "gpl", "title": "GPL" },
+        { "const": "proprietary", "title": "It's closed source" }
+      ]
+    }
+  }
+}

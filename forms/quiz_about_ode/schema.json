@@ -1,0 +1,85 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "quiz_about_ode",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Name",
+      "readOnly": true
+    },
+    "username": {
+      "type": "string",
+      "title": "Username",
+      "readOnly": true
+    },
+    "answered_at": {
+      "type": "string",
+      "format": "date-time",
+      "default": "$now",
+      "title": "Answered at",
+      "readOnly": true
+    },
+    "q1": {
+      "type": "string",
+      "title": "Which part of ODE is the mobile app you're using right now?",
+      "$ref": "#/$defs/q1_options"
+    },
+    "q2": {
+      "type": "string",
+      "title": "Which part of ODE is the server everything syncs to?",
+      "$ref": "#/$defs/q2_options"
+    },
+    "q3": {
+      "type": "string",
+      "title": "What happens when there's no internet at the venue?",
+      "$ref": "#/$defs/q3_options"
+    },
+    "q4": {
+      "type": "string",
+      "title": "What happens to your answers once you're back online?",
+      "$ref": "#/$defs/q4_options"
+    },
+    "score": {
+      "type": "integer",
+      "title": "Score",
+      "readOnly": true
+    },
+    "max_score": {
+      "type": "integer",
+      "title": "Max score",
+      "readOnly": true
+    }
+  },
+  "required": ["q1", "q2", "q3", "q4"],
+  "$defs": {
+    "q1_options": {
+      "oneOf": [
+        { "const": "formulus", "title": "Formulus" },
+        { "const": "synkronus", "title": "Synkronus" },
+        { "const": "formplayer", "title": "Formplayer" }
+      ]
+    },
+    "q2_options": {
+      "oneOf": [
+        { "const": "formulus", "title": "Formulus" },
+        { "const": "synkronus", "title": "Synkronus" },
+        { "const": "portal", "title": "Synkronus Portal" }
+      ]
+    },
+    "q3_options": {
+      "oneOf": [
+        { "const": "keeps_working", "title": "The app keeps working and saves everything to your phone" },
+        { "const": "stops_working", "title": "The app stops working" },
+        { "const": "loses_data", "title": "Your answers are lost" }
+      ]
+    },
+    "q4_options": {
+      "oneOf": [
+        { "const": "syncs_to_server", "title": "They sync to Synkronus once you tap Sync" },
+        { "const": "nothing", "title": "Nothing, they stay only on your phone" },
+        { "const": "deleted", "title": "They get deleted" }
+      ]
+    }
+  }
+}

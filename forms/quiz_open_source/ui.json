@@ -1,0 +1,34 @@
+{
+  "type": "SwipeLayout",
+  "options": {
+    "headerTitle": "Open source basics",
+    "headerFields": []
+  },
+  "elements": [
+    {
+      "type": "VerticalLayout",
+      "elements": [
+        { "type": "Control", "scope": "#/properties/name", "options": { "readOnly": true } },
+        { "type": "Control", "scope": "#/properties/q1", "options": { "format": "radio" } }
+      ]
+    },
+    {
+      "type": "VerticalLayout",
+      "elements": [
+        { "type": "Control", "scope": "#/properties/q2", "options": { "format": "radio" } }
+      ]
+    },
+    {
+      "type": "VerticalLayout",
+      "elements": [
+        { "type": "Control", "scope": "#/properties/q3", "options": { "format": "radio" } }
+      ]
+    },
+    {
+      "type": "VerticalLayout",
+      "elements": [
+        { "type": "Control", "scope": "#/properties/q4", "options": { "format": "radio" } }
+      ]
+    }
+  ]
+}

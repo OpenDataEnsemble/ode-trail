@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "feedback",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Name",
+      "readOnly": true
+    },
+    "username": {
+      "type": "string",
+      "title": "Username",
+      "readOnly": true
+    },
+    "submitted_at": {
+      "type": "string",
+      "format": "date-time",
+      "default": "$now",
+      "title": "Submitted at",
+      "readOnly": true
+    },
+    "rating": {
+      "type": "integer",
+      "format": "likert",
+      "title": "How was today, overall?",
+      "oneOf": [
+        { "const": 1, "title": "1 — Not great" },
+        { "const": 2, "title": "2" },
+        { "const": 3, "title": "3 — Okay" },
+        { "const": 4, "title": "4" },
+        { "const": 5, "title": "5 — Loved it" }
+      ],
+      "likert": { "display": "stars" }
+    },
+    "openSourceLike": {
+      "type": "string",
+      "title": "What did you like about Open Data Ensemble as an open source project?",
+      "maxLength": 2000
+    }
+  },
+  "required": ["rating"]
+}

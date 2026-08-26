@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "register",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Name",
+      "readOnly": true
+    },
+    "username": {
+      "type": "string",
+      "title": "Username",
+      "readOnly": true
+    },
+    "registered_at": {
+      "type": "string",
+      "format": "date-time",
+      "default": "$now",
+      "title": "Registered at",
+      "readOnly": true
+    },
+    "selfie": {
+      "type": "object",
+      "format": "photo",
+      "title": "Selfie",
+      "description": "Shown to other attendees on the Faces wall for the duration of the event. Ask a host if you would like yours removed.",
+      "readOnly": false
+    },
+    "favouriteQuote": {
+      "type": "string",
+      "title": "Your favourite quote",
+      "maxLength": 200
+    }
+  },
+  "required": ["selfie"]
+}

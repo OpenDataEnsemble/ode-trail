@@ -1,0 +1,13 @@
+{
+  "name": "ode-trail",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ODE Trail — a Formulus custom app for Open Data Ensemble Community Day",
+  "scripts": {
+    "validate": "node scripts/validate-forms.js",
+    "bundle": "node scripts/validate-forms.js && node scripts/build-bundle.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

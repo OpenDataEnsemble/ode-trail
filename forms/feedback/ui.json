@@ -1,0 +1,27 @@
+{
+  "type": "SwipeLayout",
+  "options": {
+    "headerTitle": "Feedback",
+    "headerFields": []
+  },
+  "elements": [
+    {
+      "type": "VerticalLayout",
+      "elements": [
+        { "type": "Control", "scope": "#/properties/name", "options": { "readOnly": true } }
+      ]
+    },
+    {
+      "type": "VerticalLayout",
+      "elements": [
+        { "type": "Control", "scope": "#/properties/rating" }
+      ]
+    },
+    {
+      "type": "VerticalLayout",
+      "elements": [
+        { "type": "Control", "scope": "#/properties/openSourceLike", "options": { "multi": true } }
+      ]
+    }
+  ]
+}

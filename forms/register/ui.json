@@ -1,0 +1,21 @@
+{
+  "type": "VerticalLayout",
+  "options": {
+    "headerTitle": "Register"
+  },
+  "elements": [
+    {
+      "type": "Label",
+      "text": "Snap a selfie and share a favourite quote to get started. Your name and photo are visible to other attendees on the Faces wall during the event.",
+      "html": false
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/selfie"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/favouriteQuote"
+    }
+  ]
+}

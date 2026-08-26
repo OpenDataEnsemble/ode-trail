@@ -1,0 +1,15 @@
+# Build output. Every zip is reproducible with `npm run bundle`, and releases
+# are published as GitHub Release assets rather than committed here.
+app-bundles/
+
+node_modules/
+
+# Local editor config
+*.code-workspace
+.vscode/
+.idea/
+
+# OS clutter
+.DS_Store
+Thumbs.db
+desktop.ini
