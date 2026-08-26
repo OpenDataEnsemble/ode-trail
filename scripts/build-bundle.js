@@ -3,8 +3,7 @@
 //
 // ODE Trail has no compile step (plain HTML/CSS/JS) — this script just
 // stages app/ plus the JSON parts of forms/ into the app/... layout
-// Synkronus expects, then zips it (mirroring how AnthroCollect's
-// build-zip.cjs packages its bundle).
+// Synkronus expects, then zips it.
 //
 // Pure Node, no npm dependencies, so it runs the same on Windows/Mac/Linux:
 //   node scripts/build-bundle.js

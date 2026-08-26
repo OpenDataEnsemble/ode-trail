@@ -99,22 +99,8 @@ which is kept in step manually) before building a release.
 
 ## Publish
 
-```bash
-synk config init
-synk login
-synk appbundle upload app-bundles/bundle-v1.0.0.zip
-```
-
-Stage first if you want to review before switching devices over:
-
-```bash
-synk appbundle upload --stage-only app-bundles/bundle-v1.0.0.zip
-synk appbundle switch <version>
-```
-
-Note: `synk --verbose` may report **Forms: 0** for this bundle. The CLI's local validator
-only recognises a root-level `forms/` directory, while the server accepts `app/forms/`.
-Confirm the upload from the server response, not the CLI form count.
+Upload the zip from `app-bundles/` to your Synkronus server, then ask the room to sync from
+the Formulus **Sync** tab. Devices pick up the new bundle on their next sync.
 
 ## Local iteration with ODE Desktop
 
