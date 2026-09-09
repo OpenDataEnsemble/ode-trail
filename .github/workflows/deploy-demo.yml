@@ -1,0 +1,146 @@
+name: Deploy to GBMIS Server
+
+# Trigger deployment on push to 'main' or 'dev' branches
+# - main: Production deployments (when code is merged to main)
+# - dev: Testing deployments (for testing before production)
+on:
+  push:
+    branches:
+      - main
+      - dev
+
+env:
+  # https://github.com/OpenDataEnsemble/ode/pkgs/container/synkronus-cli
+  # latest-pre-release tracks the newest ODE prerelease; use :latest after a stable release.
+  SYNK_CLI_IMAGE: ghcr.io/opendataensemble/synkronus-cli:latest-pre-release
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-app.yml
+
+  deploy:
+    name: Deploy App Bundle to Demo Server
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Install synk from ODE container image
+        run: |
+          docker pull "$SYNK_CLI_IMAGE"
+          cid=$(docker create "$SYNK_CLI_IMAGE")
+          docker cp "$cid:/usr/local/bin/synk" /usr/local/bin/synk
+          docker rm "$cid"
+          chmod +x /usr/local/bin/synk
+          synk version
+
+      - name: Download app bundle artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: app-bundle
+          path: app-bundles
+
+      - name: Verify zip bundle
+        id: verify
+        run: |
+          ZIP_FILE=$(ls app-bundles/bundle-v*.zip 2>/dev/null | head -1)
+          if [ -z "$ZIP_FILE" ] || [ ! -f "$ZIP_FILE" ]; then
+            echo "Error: Zip bundle not found!"
+            exit 1
+          fi
+          echo "Bundle ready: $ZIP_FILE"
+          echo "zip_file=$ZIP_FILE" >> $GITHUB_OUTPUT
+
+      - name: Check bundle size
+        run: |
+          ZIP_FILE="${{ steps.verify.outputs.zip_file }}"
+          if [ -z "$ZIP_FILE" ] || [ ! -f "$ZIP_FILE" ]; then
+            echo "Error: Zip bundle not found!"
+            exit 1
+          fi
+
+          SIZE_BYTES=$(stat -f%z "$ZIP_FILE" 2>/dev/null || stat -c%s "$ZIP_FILE" 2>/dev/null || echo "0")
+          SIZE_MB=$(awk "BEGIN {printf \"%.2f\", $SIZE_BYTES/1024/1024}")
+          SIZE_HR=$(ls -lh "$ZIP_FILE" | awk '{print $5}')
+
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Bundle Size Information"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Bundle: $(basename "$ZIP_FILE")"
+          echo "Size: $SIZE_HR ($SIZE_MB MB / $SIZE_BYTES bytes)"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+          SIZE_MB_INT=$(awk "BEGIN {printf \"%.0f\", $SIZE_BYTES/1024/1024}")
+          if [ "$SIZE_MB_INT" -gt 50 ]; then
+            echo "   Warning: Bundle size exceeds 50MB. This may cause upload issues."
+            echo "   Consider optimizing the bundle or contacting server admin to increase upload limit."
+          fi
+
+      - name: Deploy app bundle to demo server
+        env:
+          DEV_SYNK_URI: ${{ secrets.DEV_SYNK_URI }}
+          DEV_SYNK_ADMIN: ${{ secrets.DEV_SYNK_ADMIN }}
+          DEV_SYNK_PASSWORD: ${{ secrets.DEV_SYNK_PASSWORD }}
+        run: |
+          set -euo pipefail
+          ZIP_FILE="${{ steps.verify.outputs.zip_file }}"
+          ZIP_FILENAME=$(basename "$ZIP_FILE")
+
+          echo "Starting deployment..."
+          echo "Bundle: $ZIP_FILENAME"
+          echo "Server: $DEV_SYNK_URI"
+
+          mkdir -p /tmp/synkronus-config
+          CONFIG_FILE="/tmp/synkronus-config/demo.synkronus.cloud.yaml"
+          printf 'api:\n  url: %s\n  version: 1.0.0\n' "$DEV_SYNK_URI" > "$CONFIG_FILE"
+
+          echo "Authenticating to server..."
+          synk --config "$CONFIG_FILE" login -u "$DEV_SYNK_ADMIN" --password "$DEV_SYNK_PASSWORD"
+          echo "Authentication successful"
+
+          echo "Uploading app bundle..."
+          cd app-bundles
+          UPLOAD_OUTPUT=$(synk --config "$CONFIG_FILE" app-bundle upload "$ZIP_FILENAME" 2>&1) || true
+          echo "$UPLOAD_OUTPUT"
+
+          if ! echo "$UPLOAD_OUTPUT" | grep -qi 'uploaded successfully'; then
+            echo "Error: Bundle upload failed"
+            exit 1
+          fi
+
+          echo "Bundle uploaded successfully"
+
+          VERSION=$(echo "$UPLOAD_OUTPUT" | grep -iE 'Version:[[:space:]]*[^[:space:]]+' | head -1 | sed -n 's/.*Version:[[:space:]]*\([^[:space:]]*\).*/\1/p')
+          if [ -z "$VERSION" ]; then
+            echo "Error: Could not parse version from upload output"
+            exit 1
+          fi
+
+          echo "Activating version: $VERSION"
+          synk --config "$CONFIG_FILE" app-bundle switch "$VERSION"
+          echo "Version $VERSION activated successfully"
+
+      - name: Verify deployment status
+        env:
+          DEV_SYNK_URI: ${{ secrets.DEV_SYNK_URI }}
+          DEV_SYNK_ADMIN: ${{ secrets.DEV_SYNK_ADMIN }}
+          DEV_SYNK_PASSWORD: ${{ secrets.DEV_SYNK_PASSWORD }}
+        run: |
+          CONFIG_FILE="/tmp/synkronus-config/demo.synkronus.cloud.yaml"
+          printf 'api:\n  url: %s\n  version: 1.0.0\n' "$DEV_SYNK_URI" > "$CONFIG_FILE"
+          synk --config "$CONFIG_FILE" login -u "$DEV_SYNK_ADMIN" --password "$DEV_SYNK_PASSWORD" > /dev/null
+          echo "Checking app bundle status..."
+          synk --config "$CONFIG_FILE" app-bundle versions 2>/dev/null || echo "Note: versions command may not be available"
+        continue-on-error: true
+
+      - name: Deployment summary
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "DEPLOYMENT COMPLETED SUCCESSFULLY!"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Bundle: $(basename ${{ steps.verify.outputs.zip_file }})"
+          echo "Server: ${{ secrets.DEV_SYNK_URI }}"
+          echo "Time: $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
