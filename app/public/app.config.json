@@ -1,6 +1,8 @@
 {
+  "$schema": "https://ode.dev/schemas/app-config-v1.json",
   "name": "ODE Trail",
   "version": "1.0.0",
+  "observationIndexes": [],
   "theme": {
     "light": {
       "primary": "#0E4B23",

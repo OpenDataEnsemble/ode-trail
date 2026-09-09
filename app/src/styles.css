@@ -172,14 +172,16 @@ body {
 }
 
 .profile-photo-wrap img,
-.profile-placeholder {
+.profile-placeholder,
+.profile-avatar {
   width: 72px;
   height: 72px;
   border-radius: 50%;
   object-fit: cover;
 }
 
-.profile-placeholder {
+.profile-placeholder,
+.profile-avatar.avatar-placeholder {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -238,7 +240,8 @@ body {
 }
 
 .community-tile img,
-.community-placeholder {
+.community-placeholder,
+.community-avatar {
   width: 100%;
   height: 100%;
   border-radius: 50%;
@@ -248,7 +251,8 @@ body {
   display: block;
 }
 
-.community-placeholder {
+.community-placeholder,
+.community-avatar.avatar-placeholder {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -432,7 +436,8 @@ body {
   background: var(--background);
 }
 
-.lb-avatar-empty {
+.lb-avatar-empty,
+.lb-avatar.avatar-placeholder {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -663,7 +668,8 @@ body {
 }
 
 .face-tile img,
-.face-placeholder {
+.face-placeholder,
+.face-avatar {
   width: 100%;
   aspect-ratio: 1 / 1;
   border-radius: 50%;
@@ -675,7 +681,8 @@ body {
   background: var(--background);
 }
 
-.face-placeholder {
+.face-placeholder,
+.face-avatar.avatar-placeholder {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -709,6 +716,10 @@ body {
   font-size: 0.9rem;
   text-align: center;
   z-index: 100;
+}
+
+a.btn {
+  text-decoration: none;
 }
 
 /* -- larger screens (ODE Desktop workbench) -- */

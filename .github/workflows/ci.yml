@@ -6,42 +6,26 @@ on:
   pull_request:
     branches: [main, dev]
 
-env:
-  SYNK_CLI_IMAGE: ghcr.io/opendataensemble/synkronus-cli:latest-pre-release
-
 jobs:
   build:
     name: Build
     uses: ./.github/workflows/build-app.yml
 
-  validate-deploy-pipeline:
-    name: Validate deploy pipeline (synk + artifact)
+  verify-artifact:
+    name: Verify bundle artifact
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Install synk from ODE container image
-        run: |
-          docker pull "$SYNK_CLI_IMAGE"
-          cid=$(docker create "$SYNK_CLI_IMAGE")
-          docker cp "$cid:/usr/local/bin/synk" /usr/local/bin/synk
-          docker rm "$cid"
-          chmod +x /usr/local/bin/synk
-          synk version
-
       - name: Download app bundle artifact
         uses: actions/download-artifact@v8
         with:
           name: app-bundle
           path: app-bundles
 
-      - name: Verify zip bundle
+      - name: Inspect zip bundle
         run: |
-          ZIP_FILE=$(ls app-bundles/bundle-v*.zip 2>/dev/null | head -1)
-          if [ -z "$ZIP_FILE" ] || [ ! -f "$ZIP_FILE" ]; then
-            echo "Error: Zip bundle not found!"
-            exit 1
-          fi
-          echo "Bundle ready: $ZIP_FILE"
+          ZIP_FILE=$(find app-bundles -name 'bundle-v*.zip' -print -quit)
+          test -n "$ZIP_FILE"
+          unzip -t "$ZIP_FILE"
+          unzip -l "$ZIP_FILE" | grep -q 'app/index.html'
+          unzip -l "$ZIP_FILE" | grep -q 'app/forms/register/schema.json'

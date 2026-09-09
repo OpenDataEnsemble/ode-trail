@@ -1,8 +1,6 @@
-name: Deploy to GBMIS Server
+name: Deploy ODE Trail to Demo Server
 
-# Trigger deployment on push to 'main' or 'dev' branches
-# - main: Production deployments (when code is merged to main)
-# - dev: Testing deployments (for testing before production)
+# Deploys the event bundle when it is merged to an active branch.
 on:
   push:
     branches:
@@ -102,14 +100,8 @@ jobs:
 
           echo "Uploading app bundle..."
           cd app-bundles
-          UPLOAD_OUTPUT=$(synk --config "$CONFIG_FILE" app-bundle upload "$ZIP_FILENAME" 2>&1) || true
+          UPLOAD_OUTPUT=$(synk --config "$CONFIG_FILE" app-bundle upload "$ZIP_FILENAME" 2>&1)
           echo "$UPLOAD_OUTPUT"
-
-          if ! echo "$UPLOAD_OUTPUT" | grep -qi 'uploaded successfully'; then
-            echo "Error: Bundle upload failed"
-            exit 1
-          fi
-
           echo "Bundle uploaded successfully"
 
           VERSION=$(echo "$UPLOAD_OUTPUT" | grep -iE 'Version:[[:space:]]*[^[:space:]]+' | head -1 | sed -n 's/.*Version:[[:space:]]*\([^[:space:]]*\).*/\1/p')

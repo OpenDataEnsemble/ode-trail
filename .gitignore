@@ -1,6 +1,8 @@
 # Build output. Every zip is reproducible with `npm run bundle`, and releases
 # are published as GitHub Release assets rather than committed here.
 app-bundles/
+app/dist/
+app/public/forms/
 
 node_modules/
 

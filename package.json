@@ -1,13 +1,14 @@
 {
-  "name": "ode-trail",
-  "version": "1.0.0",
+  "name": "ode-trail-workspace",
   "private": true,
-  "description": "ODE Trail — a Formulus custom app for Open Data Ensemble Community Day",
   "scripts": {
-    "validate": "node scripts/validate-forms.js",
-    "bundle": "node scripts/validate-forms.js && node scripts/build-bundle.js"
-  },
-  "engines": {
-    "node": ">=18"
+    "dev": "npm --prefix app run dev",
+    "build": "npm --prefix app run build",
+    "zip": "npm --prefix app run zip",
+    "validate:forms": "npm --prefix app run validate:forms",
+    "lint": "npm --prefix app run lint",
+    "format": "npm --prefix app run format",
+    "format:check": "npm --prefix app run format:check",
+    "test": "npm --prefix app run test"
   }
 }
