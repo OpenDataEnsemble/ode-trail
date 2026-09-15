@@ -58,7 +58,9 @@ export function TrailProvider({ children }) {
     }
 
     const bridge = await getFormulus();
-    const observations = await bridge.getObservationsByQuery({ formType: 'register' }).catch(() => []);
+    const observations = await bridge
+      .getObservationsByQuery({ formType: 'register' })
+      .catch(() => []);
     const newestByPerson = new Map();
     observations.forEach((observation) => {
       const key = personKey(observation.data);
@@ -301,7 +303,15 @@ export function TrailProvider({ children }) {
         showError("Couldn't open the registration form", error);
       }
     });
-  }, [bumpDataEpoch, hydrateProgress, loadFaces, requireReady, runExclusive, showError, updateProgress]);
+  }, [
+    bumpDataEpoch,
+    hydrateProgress,
+    loadFaces,
+    requireReady,
+    runExclusive,
+    showError,
+    updateProgress,
+  ]);
 
   const openOneTimeForm = useCallback(
     (formType, timestampKey, complete) => {
