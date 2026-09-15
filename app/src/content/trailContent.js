@@ -25,7 +25,6 @@ export const QUIZZES = {
 
 export const QUIZ_ORDER = ['quiz_open_source', 'quiz_about_ode'];
 export const POINTS = { checkin: 2, feedback: 2 };
-export const REPO_URL = 'github.com/OpenDataEnsemble/ode-trail';
 
 export const ABOUT_ODE = [
   {
@@ -51,14 +50,13 @@ export const ABOUT_ODE = [
 ];
 
 export const AGENDA = [
-  {
-    time: '9:00',
-    title: 'Registration & check-in',
-    desc: 'Get your badge, register in the app, then tap Check in once you’re here.',
-  },
-  { time: '9:30', title: 'Welcome', desc: 'What today is about.' },
-  { time: '10:00', title: 'Open source 101', desc: 'Take the quiz right after.' },
-  { time: '11:00', title: 'Meet ODE', desc: 'A live look at ODE in action.' },
-  { time: '13:00', title: 'Hands-on lab', desc: 'Build something with the team.' },
-  { time: '15:30', title: 'Panel & wrap-up', desc: 'Questions, feedback, and thank-yous.' },
+  { time: '9:00 – 9:30', title: 'Registration and snacks' },
+  { time: '9:30 – 10:00', title: 'Intros & Program for the day' },
+  { time: '10:00 – 12:00', title: 'The ODE Ecosystem' },
+  { time: '12:00 – 12:30', title: 'LUNCH' },
+  { time: '12:30 – 13:00', title: 'ODE LAB: Intro to group work' },
+  { time: '13:00 – 15:00', title: 'ODE LAB: Work in groups' },
+  { time: '15:00 – 16:00', title: 'ODE LAB: Present group work' },
+  { time: '16:00 – 17:00', title: 'Work Readiness & Placement' },
+  { time: '17:00 – 18:00', title: 'Wrap-up and open positions in ODE community' },
 ];

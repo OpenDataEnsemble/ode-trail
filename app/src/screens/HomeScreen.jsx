@@ -125,9 +125,6 @@ export function HomeScreen() {
         <Link className="btn btn-outline" to="/faces">
           Faces
         </Link>
-        <Link className="btn btn-outline" to="/attendance">
-          Attendance
-        </Link>
       </nav>
     </AppShell>
   );

@@ -1,7 +1,7 @@
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { TrailProvider } from './context/TrailContext';
 import { HomeScreen } from './screens/HomeScreen';
-import { AttendanceScreen, AboutScreen, AgendaScreen } from './screens/StaticScreens';
+import { AboutScreen, AgendaScreen } from './screens/StaticScreens';
 import { FacesScreen, LeaderboardScreen } from './screens/CommunityScreens';
 
 export default function App() {
@@ -15,7 +15,6 @@ export default function App() {
             <Route path="/about" element={<AboutScreen />} />
             <Route path="/leaderboard" element={<LeaderboardScreen />} />
             <Route path="/faces" element={<FacesScreen />} />
-            <Route path="/attendance" element={<AttendanceScreen />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>

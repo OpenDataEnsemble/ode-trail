@@ -567,59 +567,7 @@ body {
   border-top: none;
 }
 
-/* -- attendance wall (shipped in the bundle, edited by pull request) -- */
-
-.repo-url {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.85rem !important;
-  color: var(--primary) !important;
-  background: var(--background);
-  border: 1px solid var(--divider);
-  border-radius: 8px;
-  padding: 10px 12px;
-  overflow-wrap: anywhere;
-}
-
-.steps {
-  margin: 0 0 10px;
-  padding-left: 20px;
-  color: var(--muted);
-  font-size: 0.88rem;
-  line-height: 1.45;
-}
-
-.steps li {
-  margin-bottom: 6px;
-}
-
-.attendee-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.attendee {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 10px 2px;
-  border-bottom: 1px solid var(--divider);
-}
-
-.attendee:last-child {
-  border-bottom: none;
-}
-
-.attendee-name {
-  font-weight: 600;
-}
-
-.attendee-handle {
-  flex-shrink: 0;
-  font-size: 0.8rem;
-  color: var(--muted);
-}
+/* -- agenda -- */
 
 .agenda-item {
   display: flex;
@@ -633,7 +581,7 @@ body {
 }
 
 .agenda-time {
-  width: 70px;
+  width: 7.5rem;
   flex-shrink: 0;
   font-weight: 600;
   color: var(--primary);
@@ -643,12 +591,6 @@ body {
 .agenda-title {
   font-weight: 600;
   font-size: 0.92rem;
-}
-
-.agenda-desc {
-  color: var(--muted);
-  font-size: 0.85rem;
-  margin-top: 2px;
 }
 
 .faces-grid {
