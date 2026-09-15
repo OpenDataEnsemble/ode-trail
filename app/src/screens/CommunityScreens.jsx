@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { AppShell, Avatar, Empty } from '../components/AppShell';
 import { QUIZ_ORDER, QUIZZES } from '../content/trailContent';
 import { useTrail } from '../context/TrailContext';
-import { getFormulus } from '../lib/formulus';
+import { useRefreshOnDataRevision } from '../hooks/useRefreshOnDataRevision';
 import {
   observationTime,
   personKey,
@@ -11,11 +11,20 @@ import {
 } from '../lib/trailState';
 
 export function FacesScreen() {
-  const { faces, loadFaces } = useTrail();
+  const { faces, loadFaces, api, dataEpoch } = useTrail();
   const [error, setError] = useState(false);
-  useEffect(() => {
-    loadFaces().catch(() => setError(true));
+  const refreshFaces = useCallback(async () => {
+    try {
+      await loadFaces(true);
+      setError(false);
+    } catch {
+      setError(true);
+    }
   }, [loadFaces]);
+  useRefreshOnDataRevision(api, refreshFaces);
+  useEffect(() => {
+    loadFaces(dataEpoch > 0).catch(() => setError(true));
+  }, [loadFaces, dataEpoch]);
   const people = faces.filter((person) => person.name);
   return (
     <AppShell title="Faces" back>
@@ -52,8 +61,7 @@ function rankRows(rows) {
   );
 }
 
-async function loadBoard() {
-  const api = await getFormulus();
+async function loadBoard(api) {
   const forms = ['checkin', 'feedback', ...QUIZ_ORDER.map((key) => QUIZZES[key].formType)];
   const [registrations, ...results] = await Promise.all([
     api.getObservationsByQuery({ formType: 'register' }).catch(() => []),
@@ -122,14 +130,22 @@ async function loadBoard() {
 }
 
 export function LeaderboardScreen() {
-  const { progress } = useTrail();
+  const { progress, api, dataEpoch } = useTrail();
   const [board, setBoard] = useState(null);
   const [error, setError] = useState(false);
+  const refresh = useCallback(async () => {
+    if (!api) return;
+    try {
+      setBoard(await loadBoard(api));
+      setError(false);
+    } catch {
+      setError(true);
+    }
+  }, [api]);
+  useRefreshOnDataRevision(api, refresh);
   useEffect(() => {
-    loadBoard()
-      .then(setBoard)
-      .catch(() => setError(true));
-  }, []);
+    refresh().catch(() => setError(true));
+  }, [refresh, dataEpoch]);
   const mine = progress.identity?.username || progress.identity?.name;
   return (
     <AppShell title="Leaderboard" back>

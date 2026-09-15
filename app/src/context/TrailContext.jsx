@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { QUIZ_ORDER, QUIZZES } from '../content/trailContent';
+import { useRefreshOnDataRevision } from '../hooks/useRefreshOnDataRevision';
 import { getFormulus, hostVersionIssue } from '../lib/formulus';
 import {
   defaultProgress,
@@ -25,8 +26,14 @@ export function TrailProvider({ children }) {
   const [hostIssue, setHostIssue] = useState(null);
   const [notice, setNotice] = useState(null);
   const [faces, setFaces] = useState([]);
+  const [api, setApi] = useState(null);
+  // Bumped after local form submits and after sync-driven refreshes so community
+  // screens re-query even when Synkronus revision has not changed yet.
+  const [dataEpoch, setDataEpoch] = useState(0);
   const actionInFlight = useRef(false);
   const facesCache = useRef(null);
+  const progressRef = useRef(progress);
+  progressRef.current = progress;
 
   const updateProgress = useCallback((updater) => {
     setProgress((current) => {
@@ -34,6 +41,10 @@ export function TrailProvider({ children }) {
       saveProgress(next);
       return next;
     });
+  }, []);
+
+  const bumpDataEpoch = useCallback(() => {
+    setDataEpoch((value) => value + 1);
   }, []);
 
   const showError = useCallback((prefix, error) => {
@@ -46,8 +57,8 @@ export function TrailProvider({ children }) {
       return facesCache.current.people;
     }
 
-    const api = await getFormulus();
-    const observations = await api.getObservationsByQuery({ formType: 'register' }).catch(() => []);
+    const bridge = await getFormulus();
+    const observations = await bridge.getObservationsByQuery({ formType: 'register' }).catch(() => []);
     const newestByPerson = new Map();
     observations.forEach((observation) => {
       const key = personKey(observation.data);
@@ -60,7 +71,7 @@ export function TrailProvider({ children }) {
         const data = observation.data || {};
         const filename = data.selfie?.filename;
         let uri = null;
-        if (filename) uri = await api.getAttachmentUri(filename).catch(() => null);
+        if (filename) uri = await bridge.getAttachmentUri(filename).catch(() => null);
         return { key, name: data.name || key, uri };
       })
     );
@@ -70,14 +81,14 @@ export function TrailProvider({ children }) {
   }, []);
 
   const hydrateProgress = useCallback(async () => {
-    const username = progress.identity?.username;
+    const username = progressRef.current.identity?.username;
     if (!username) return;
-    const api = await getFormulus();
+    const bridge = await getFormulus();
     const formTypes = ['checkin', 'feedback', ...QUIZ_ORDER.map((key) => QUIZZES[key].formType)];
     const results = await Promise.all(
       formTypes.map(async (formType) => ({
         formType,
-        observations: await api.getObservationsByQuery({ formType }).catch(() => []),
+        observations: await bridge.getObservationsByQuery({ formType }).catch(() => []),
       }))
     );
 
@@ -109,13 +120,13 @@ export function TrailProvider({ children }) {
       });
       return changed ? next : current;
     });
-  }, [progress.identity?.username, updateProgress]);
+  }, [updateProgress]);
 
   const refreshSession = useCallback(async () => {
-    const api = await getFormulus();
-    const user = await api.getCurrentUser();
+    const bridge = await getFormulus();
+    const user = await bridge.getCurrentUser();
     const username = user?.username || '';
-    let activeIdentity = progress.identity;
+    let activeIdentity = progressRef.current.identity;
 
     if (activeIdentity?.username && username && activeIdentity.username !== username) {
       activeIdentity = null;
@@ -125,7 +136,7 @@ export function TrailProvider({ children }) {
     }
 
     if (!activeIdentity && username) {
-      const registrations = await api
+      const registrations = await bridge
         .getObservationsByQuery({ formType: 'register' })
         .catch(() => []);
       const registration = firstForUsername(registrations, username);
@@ -143,13 +154,25 @@ export function TrailProvider({ children }) {
     }
 
     if (activeIdentity?.username) await hydrateProgress();
-  }, [hydrateProgress, progress.identity, updateProgress]);
+  }, [hydrateProgress, updateProgress]);
+
+  // Shared invalidation for sync / returning focus: clear TTL, reload session + faces,
+  // and bump the epoch so leaderboard (and any other observers) re-query.
+  const refreshFromSync = useCallback(async () => {
+    facesCache.current = null;
+    await refreshSession();
+    await loadFaces(true).catch(() => undefined);
+    bumpDataEpoch();
+  }, [bumpDataEpoch, loadFaces, refreshSession]);
+
+  useRefreshOnDataRevision(api, refreshFromSync);
 
   useEffect(() => {
     let active = true;
     getFormulus()
-      .then(async (api) => {
-        const issue = await hostVersionIssue(api);
+      .then(async (instance) => {
+        if (active) setApi(instance);
+        const issue = await hostVersionIssue(instance);
         if (active) setHostIssue(issue);
         return refreshSession();
       })
@@ -163,13 +186,12 @@ export function TrailProvider({ children }) {
     const previous = window.onReceiveFocus;
     window.onReceiveFocus = () => {
       if (typeof previous === 'function') previous();
-      facesCache.current = null;
-      return refreshSession().catch(() => undefined);
+      return refreshFromSync().catch(() => undefined);
     };
     return () => {
       window.onReceiveFocus = previous;
     };
-  }, [refreshSession]);
+  }, [refreshFromSync]);
 
   useEffect(() => {
     if (!notice) return undefined;
@@ -270,13 +292,16 @@ export function TrailProvider({ children }) {
             observationId: result.observationId || null,
           },
         }));
+        // gbmis-style: always refresh community data after Formplayer returns a submit.
         facesCache.current = null;
+        await loadFaces(true).catch(() => undefined);
+        bumpDataEpoch();
         setNotice(`Thank you for registering, ${data.name || displayName}!`);
       } catch (error) {
         showError("Couldn't open the registration form", error);
       }
     });
-  }, [hydrateProgress, requireReady, runExclusive, showError, updateProgress]);
+  }, [bumpDataEpoch, hydrateProgress, loadFaces, requireReady, runExclusive, showError, updateProgress]);
 
   const openOneTimeForm = useCallback(
     (formType, timestampKey, complete) => {
@@ -300,9 +325,10 @@ export function TrailProvider({ children }) {
           );
           if (!isSubmitted(result)) return;
           updateProgress((current) => ({ ...current, ...complete(current, false) }));
+          bumpDataEpoch();
           setNotice(
             formType === 'checkin'
-              ? `Welcome to the ODE Community, ${progress.identity.name}!`
+              ? `Welcome to the ODE Community, ${progressRef.current.identity?.name}!`
               : 'Thanks for the feedback!'
           );
         } catch (error) {
@@ -315,8 +341,8 @@ export function TrailProvider({ children }) {
     },
     [
       alreadySubmitted,
+      bumpDataEpoch,
       identityStamp,
-      progress.identity?.name,
       requireReady,
       runExclusive,
       showError,
@@ -357,7 +383,6 @@ export function TrailProvider({ children }) {
             ...current,
             quizzes: { ...current.quizzes, [quizKey]: { done: true, score, maxScore } },
           }));
-          setNotice(`Scored ${score}/${maxScore} — nice.`);
           if (result.observationId) {
             await api
               .persistObservation({
@@ -367,6 +392,8 @@ export function TrailProvider({ children }) {
               })
               .catch(() => undefined);
           }
+          bumpDataEpoch();
+          setNotice(`Scored ${score}/${maxScore} — nice.`);
         } catch (error) {
           showError("Couldn't open that quiz", error);
         }
@@ -374,6 +401,7 @@ export function TrailProvider({ children }) {
     },
     [
       alreadySubmitted,
+      bumpDataEpoch,
       hydrateProgress,
       identityStamp,
       requireReady,
@@ -390,6 +418,8 @@ export function TrailProvider({ children }) {
         hostIssue,
         notice,
         faces,
+        api,
+        dataEpoch,
         loadFaces,
         register,
         checkIn,
