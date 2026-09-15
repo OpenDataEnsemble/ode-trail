@@ -11,6 +11,12 @@
     },
     {
       "type": "Control",
+      "scope": "#/properties/name",
+      "label": "Name",
+      "options": { "readOnly": true }
+    },
+    {
+      "type": "Control",
       "scope": "#/properties/selfie",
       "label": "Selfie"
     },

@@ -5,6 +5,7 @@ import { useTrail } from '../context/TrailContext';
 import { useRefreshOnDataRevision } from '../hooks/useRefreshOnDataRevision';
 import {
   observationTime,
+  attachmentBasename,
   personKey,
   quizKeyForFormType,
   scoreFromObservation,
@@ -70,12 +71,11 @@ async function loadBoard(api) {
   const profiles = new Map();
   await Promise.all(
     registrations.map(async (observation) => {
-      const key = personKey(observation.data);
+      const key = personKey(observation.data, observation);
       if (!key || profiles.has(key)) return;
       const data = observation.data || {};
-      const uri = data.selfie?.filename
-        ? await api.getAttachmentUri(data.selfie.filename).catch(() => null)
-        : null;
+      const filename = attachmentBasename(data.selfie);
+      const uri = filename ? await api.getAttachmentUri(filename).catch(() => null) : null;
       profiles.set(key, { name: data.name || key, uri });
     })
   );
@@ -85,7 +85,7 @@ async function loadBoard(api) {
     const formType = forms[index];
     const first = new Map();
     observations.forEach((observation) => {
-      const key = personKey(observation.data);
+      const key = personKey(observation.data, observation);
       const current = first.get(key);
       if (
         !key ||

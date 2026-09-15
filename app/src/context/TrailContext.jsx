@@ -7,6 +7,7 @@ import {
   isSubmitted,
   loadProgress,
   observationTime,
+  attachmentBasename,
   personKey,
   quizKeyForFormType,
   scoreFromObservation,
@@ -18,7 +19,31 @@ import {
 const TrailContext = createContext(null);
 
 function firstForUsername(observations, username) {
-  return observations.find((observation) => observation.data?.username === username) || null;
+  return (
+    observations.find(
+      (observation) => observation.data?.username === username || observation.author === username
+    ) || null
+  );
+}
+
+async function repairRegisterIdentity(bridge, observationId, data, identity) {
+  if (!observationId || typeof bridge.persistObservation !== 'function') return;
+  const next = {
+    ...data,
+    name: data?.name || identity.name,
+    username: data?.username || identity.username,
+    registered_at: data?.registered_at || new Date().toISOString(),
+    selfie: data?.selfie || identity.selfie || null,
+    favouriteQuote: data?.favouriteQuote || identity.favouriteQuote || '',
+  };
+  if (next.username === data?.username && next.name === data?.name) return;
+  await bridge
+    .persistObservation({
+      formType: 'register',
+      observationId,
+      finalData: next,
+    })
+    .catch(() => undefined);
 }
 
 export function TrailProvider({ children }) {
@@ -63,7 +88,7 @@ export function TrailProvider({ children }) {
       .catch(() => []);
     const newestByPerson = new Map();
     observations.forEach((observation) => {
-      const key = personKey(observation.data);
+      const key = personKey(observation.data, observation);
       if (!key || observationTime(observation) < observationTime(newestByPerson.get(key))) return;
       newestByPerson.set(key, observation);
     });
@@ -71,12 +96,32 @@ export function TrailProvider({ children }) {
     const people = await Promise.all(
       [...newestByPerson].map(async ([key, observation]) => {
         const data = observation.data || {};
-        const filename = data.selfie?.filename;
+        const filename = attachmentBasename(data.selfie);
         let uri = null;
         if (filename) uri = await bridge.getAttachmentUri(filename).catch(() => null);
         return { key, name: data.name || key, uri };
       })
     );
+
+    // Older register rows may have dropped hidden name/username prefills; still show
+    // the signed-in attendee from local identity (and repair their photo URI).
+    const identity = progressRef.current.identity;
+    const selfKey = identity?.username || identity?.name || '';
+    if (selfKey && !people.some((person) => person.key === selfKey)) {
+      const filename = attachmentBasename(identity.selfie);
+      let uri = null;
+      if (filename) uri = await bridge.getAttachmentUri(filename).catch(() => null);
+      people.push({ key: selfKey, name: identity.name || selfKey, uri });
+    } else if (selfKey) {
+      const self = people.find((person) => person.key === selfKey);
+      if (self && !self.uri) {
+        const filename = attachmentBasename(identity.selfie);
+        if (filename) {
+          self.uri = await bridge.getAttachmentUri(filename).catch(() => null);
+        }
+      }
+    }
+
     facesCache.current = { at: Date.now(), people };
     setFaces(people);
     return people;
@@ -145,13 +190,29 @@ export function TrailProvider({ children }) {
       if (registration) {
         const data = registration.data || {};
         activeIdentity = {
-          name: data.name || '',
+          name: data.name || user.displayName || username,
           favouriteQuote: data.favouriteQuote || '',
           selfie: data.selfie || null,
           username,
           observationId: registration.observationId,
         };
         updateProgress((current) => ({ ...current, identity: activeIdentity }));
+        await repairRegisterIdentity(bridge, registration.observationId, data, activeIdentity);
+      }
+    } else if (activeIdentity?.username && activeIdentity.observationId) {
+      const registrations = await bridge
+        .getObservationsByQuery({ formType: 'register' })
+        .catch(() => []);
+      const registration =
+        registrations.find((row) => row.observationId === activeIdentity.observationId) ||
+        firstForUsername(registrations, activeIdentity.username);
+      if (registration) {
+        await repairRegisterIdentity(
+          bridge,
+          registration.observationId,
+          registration.data || {},
+          activeIdentity
+        );
       }
     }
 
@@ -284,21 +345,24 @@ export function TrailProvider({ children }) {
         );
         if (!isSubmitted(result)) return;
         const data = result.formData || {};
-        updateProgress((current) => ({
-          ...current,
-          identity: {
-            name: data.name || displayName,
-            favouriteQuote: data.favouriteQuote || '',
-            selfie: data.selfie || null,
-            username: data.username || username,
-            observationId: result.observationId || null,
-          },
-        }));
+        const identity = {
+          name: data.name || displayName,
+          favouriteQuote: data.favouriteQuote || '',
+          selfie: data.selfie || null,
+          username: data.username || username,
+          observationId: result.observationId || null,
+        };
+        updateProgress((current) => ({ ...current, identity }));
+        // Stamp name/username onto the saved row — register UI used to omit those
+        // fields, and JSON Forms can drop hidden prefills on submit.
+        if (result.observationId) {
+          await repairRegisterIdentity(api, result.observationId, data, identity);
+        }
         // gbmis-style: always refresh community data after Formplayer returns a submit.
         facesCache.current = null;
         await loadFaces(true).catch(() => undefined);
         bumpDataEpoch();
-        setNotice(`Thank you for registering, ${data.name || displayName}!`);
+        setNotice(`Thank you for registering, ${identity.name}!`);
       } catch (error) {
         showError("Couldn't open the registration form", error);
       }

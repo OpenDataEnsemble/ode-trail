@@ -29,8 +29,18 @@ export function observationTime(observation, field = 'updatedAt') {
   return Number.isNaN(timestamp) ? 0 : timestamp;
 }
 
-export function personKey(data) {
-  return data?.username || data?.name || '';
+export function personKey(data, observation) {
+  return data?.username || observation?.author || data?.name || '';
+}
+
+/** Basename for Formulus `getAttachmentUri` (photo object or bare filename string). */
+export function attachmentBasename(photo) {
+  const raw =
+    typeof photo === 'string' ? photo : photo && typeof photo === 'object' ? photo.filename : '';
+  if (typeof raw !== 'string') return '';
+  const base = raw.trim().replace(/\\/g, '/').split('/').pop() || '';
+  if (!base || base === '.' || base === '..' || base.includes('..')) return '';
+  return base;
 }
 
 export function quizKeyForFormType(formType) {
