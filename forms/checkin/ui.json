@@ -7,11 +7,13 @@
     {
       "type": "Control",
       "scope": "#/properties/name",
+      "label": "Name",
       "options": { "readOnly": true }
     },
     {
       "type": "Control",
       "scope": "#/properties/checked_in_at",
+      "label": "Checked in at",
       "options": { "readOnly": true }
     }
   ]

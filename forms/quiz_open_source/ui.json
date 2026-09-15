@@ -8,26 +8,26 @@
     {
       "type": "VerticalLayout",
       "elements": [
-        { "type": "Control", "scope": "#/properties/name", "options": { "readOnly": true } },
-        { "type": "Control", "scope": "#/properties/q1", "options": { "format": "radio" } }
+        { "type": "Control", "scope": "#/properties/name", "label": "Name", "options": { "readOnly": true } },
+        { "type": "Control", "scope": "#/properties/q1", "label": "What does \"open source\" mean?", "options": { "format": "radio" } }
       ]
     },
     {
       "type": "VerticalLayout",
       "elements": [
-        { "type": "Control", "scope": "#/properties/q2", "options": { "format": "radio" } }
+        { "type": "Control", "scope": "#/properties/q2", "label": "How do outside contributors usually help an open source project?", "options": { "format": "radio" } }
       ]
     },
     {
       "type": "VerticalLayout",
       "elements": [
-        { "type": "Control", "scope": "#/properties/q3", "options": { "format": "radio" } }
+        { "type": "Control", "scope": "#/properties/q3", "label": "What's the usual way to propose a code change on GitHub?", "options": { "format": "radio" } }
       ]
     },
     {
       "type": "VerticalLayout",
       "elements": [
-        { "type": "Control", "scope": "#/properties/q4", "options": { "format": "radio" } }
+        { "type": "Control", "scope": "#/properties/q4", "label": "What license is ODE released under?", "options": { "format": "radio" } }
       ]
     }
   ]

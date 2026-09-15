@@ -11,11 +11,13 @@
     },
     {
       "type": "Control",
-      "scope": "#/properties/selfie"
+      "scope": "#/properties/selfie",
+      "label": "Selfie"
     },
     {
       "type": "Control",
-      "scope": "#/properties/favouriteQuote"
+      "scope": "#/properties/favouriteQuote",
+      "label": "Your favourite quote"
     }
   ]
 }

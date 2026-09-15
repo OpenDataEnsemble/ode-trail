@@ -8,19 +8,19 @@
     {
       "type": "VerticalLayout",
       "elements": [
-        { "type": "Control", "scope": "#/properties/name", "options": { "readOnly": true } }
+        { "type": "Control", "scope": "#/properties/name", "label": "Name", "options": { "readOnly": true } }
       ]
     },
     {
       "type": "VerticalLayout",
       "elements": [
-        { "type": "Control", "scope": "#/properties/rating" }
+        { "type": "Control", "scope": "#/properties/rating", "label": "How was today, overall?" }
       ]
     },
     {
       "type": "VerticalLayout",
       "elements": [
-        { "type": "Control", "scope": "#/properties/openSourceLike", "options": { "multi": true } }
+        { "type": "Control", "scope": "#/properties/openSourceLike", "label": "What did you like about Open Data Ensemble as an open source project?", "options": { "multi": true } }
       ]
     }
   ]

@@ -8,26 +8,26 @@
     {
       "type": "VerticalLayout",
       "elements": [
-        { "type": "Control", "scope": "#/properties/name", "options": { "readOnly": true } },
-        { "type": "Control", "scope": "#/properties/q1", "options": { "format": "radio" } }
+        { "type": "Control", "scope": "#/properties/name", "label": "Name", "options": { "readOnly": true } },
+        { "type": "Control", "scope": "#/properties/q1", "label": "Which part of ODE is the mobile app you're using right now?", "options": { "format": "radio" } }
       ]
     },
     {
       "type": "VerticalLayout",
       "elements": [
-        { "type": "Control", "scope": "#/properties/q2", "options": { "format": "radio" } }
+        { "type": "Control", "scope": "#/properties/q2", "label": "Which part of ODE is the server everything syncs to?", "options": { "format": "radio" } }
       ]
     },
     {
       "type": "VerticalLayout",
       "elements": [
-        { "type": "Control", "scope": "#/properties/q3", "options": { "format": "radio" } }
+        { "type": "Control", "scope": "#/properties/q3", "label": "What happens when there's no internet at the venue?", "options": { "format": "radio" } }
       ]
     },
     {
       "type": "VerticalLayout",
       "elements": [
-        { "type": "Control", "scope": "#/properties/q4", "options": { "format": "radio" } }
+        { "type": "Control", "scope": "#/properties/q4", "label": "What happens to your answers once you're back online?", "options": { "format": "radio" } }
       ]
     }
   ]
